@@ -7,17 +7,12 @@ class LLMService:
             token=HF_TOKEN
         )
     
-    def ask(self, prompt: str) -> str:
+    def ask(self, messages: list) -> str:
 
         response = self.client.chat_completion(
             model='meta-llama/Llama-3.1-8B-Instruct',
-            messages=[
-                {
-                    "role": 'user',
-                    'content': prompt
-                }
-            ],
-            max_tokens=300 #Why only 300??? Why not more?
+            messages=messages,
+            max_tokens=300
         )
 
         return response.choices[0].message.content
