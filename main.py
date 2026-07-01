@@ -2,7 +2,19 @@ from services.llm_service import LLMService
 
 llm = LLMService()
 
-answer = llm.ask('Define what a 3D printer is and how it works.')
+print("=== AI Chatbot ===")
+print("Type 'quit' to exit.\n")
 
-print('\nAi response:\n')
-print(answer)
+while True:
+
+    prompt = input("You: ")
+
+    if prompt.lower() == "quit":
+        print("\nGoodbye!")
+        break
+
+    answer = llm.ask(prompt)
+
+    print("\nAI:")
+    print(answer)
+    print()
