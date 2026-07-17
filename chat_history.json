@@ -1,0 +1,42 @@
+[
+    {
+        "role": "user",
+        "content": "hello"
+    },
+    {
+        "role": "assistant",
+        "content": "Hello! How can I assist you today?"
+    },
+    {
+        "role": "user",
+        "content": "joke"
+    },
+    {
+        "role": "assistant",
+        "content": "A man walked into a library and asked the librarian, \"Do you have any books on Pavlov's dogs and Schr\u00f6dinger's cat?\"\n\nThe librarian replied, \"It rings a bell, but I'm not sure if it's here or not.\""
+    },
+    {
+        "role": "user",
+        "content": "another one"
+    },
+    {
+        "role": "assistant",
+        "content": "A man walked into a bar and ordered a beer. As he sipped his drink, he heard a voice say, \"Nice tie!\" He looked around, but there was nobody nearby who could have said it.\n\nA few minutes later, he heard the same voice say, \"Beautiful shirt!\" Again, he looked around, but he couldn't find anyone who might have spoken.\n\nA few more minutes passed, and he heard the voice say, \"Great haircut!\" This time, he decided to investigate further.\n\nHe asked the bartender, \"Did you hear that voice?\"\n\nThe bartender replied, \"Oh, that's just the peanuts. They're complimentary.\""
+    },
+    {
+        "role": "user",
+        "content": "a knock knock joke"
+    },
+    {
+        "role": "assistant",
+        "content": "Knock knock!\n\nWho's there?\n\nCows go.\n\nCows go who?\n\nNo, cows go \"moo\"."
+    },
+    {
+        "role": "user",
+        "content": "another one"
+    },
+    {
+        "role": "assistant",
+        "content": "Knock knock!\n\nWho's there?\n\nBoo.\n\nBoo who?\n\nDon't cry, it's just a joke."
+    }
+]
