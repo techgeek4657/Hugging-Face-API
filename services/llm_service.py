@@ -1,64 +1,70 @@
-from huggingface_hub import InferenceClient
-from config.settings import HF_TOKEN
+from groq import Groq
+from config.settings import GROQ_API_KEY
 
 
 class LLMService:
 
     def __init__(self):
 
-        self.client = InferenceClient(
-            token=HF_TOKEN
+        self.client = Groq(
+            api_key=GROQ_API_KEY
         )
+
 
     def ask(self, messages: list) -> str:
 
-        response = self.client.chat_completion(
+        try:
 
-            model="meta-llama/Llama-3.1-8B-Instruct",
+            response = self.client.chat.completions.create(
 
-            messages=messages,
+                model="llama-3.1-8b-instant",
 
-            max_tokens=300
+                messages=messages,
 
-        )
+                max_tokens=800
 
-        return response.choices[0].message.content.strip()
+            )
+
+            return response.choices[0].message.content.strip()
+
+
+        except Exception as e:
+
+            return f"AI Error: {e}"
 
 
     def generate_title(self, messages: list) -> str:
 
-        prompt = [
-            {
-                "role": "system",
-                "content":
-                (
-                    "Generate a short chat title.\n"
-                    "Maximum four words.\n"
-                    "No quotation marks.\n"
-                    "No punctuation.\n"
-                    "Return ONLY the title."
-                )
-            }
-        ]
+        try:
 
-        prompt.extend(messages)
+            title_messages = [
+                {
+                    "role": "system",
+                    "content": (
+                        "Create a short title for this conversation. "
+                        "Maximum four words. "
+                        "Return only the title."
+                    )
+                }
+            ]
 
-        response = self.client.chat_completion(
+            title_messages.extend(messages)
 
-            model="meta-llama/Llama-3.1-8B-Instruct",
 
-            messages=prompt,
+            response = self.client.chat.completions.create(
 
-            max_tokens=15
+                model="llama-3.1-8b-instant",
 
-        )
+                messages=title_messages,
 
-        title = response.choices[0].message.content.strip()
+                max_tokens=15
 
-        title = title.replace('"', "")
-        title = title.replace("'", "")
-        title = title.replace("/", "-")
-        title = title.replace("\\", "-")
-        title = title.replace(":", "-")
+            )
 
-        return title
+
+            return response.choices[0].message.content.strip()
+
+
+        except Exception:
+
+            return "New Chat"

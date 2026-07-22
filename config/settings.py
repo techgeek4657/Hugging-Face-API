@@ -3,7 +3,7 @@ import os
 
 load_dotenv()
 
-HF_TOKEN = os.getenv("HF_TOKEN")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-if not HF_TOKEN:
-    raise ValueError("HF_TOKEN not found in .env file.")
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY not found in .env file.")
