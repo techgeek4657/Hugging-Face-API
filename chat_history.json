@@ -38,5 +38,29 @@
     {
         "role": "assistant",
         "content": "Knock knock!\n\nWho's there?\n\nBoo.\n\nBoo who?\n\nDon't cry, it's just a joke."
+    },
+    {
+        "role": "user",
+        "content": "what is my chat history"
+    },
+    {
+        "role": "assistant",
+        "content": "You've had the following conversation with me:\n\n1. We started with a simple greeting.\n2. I shared a joke about Pavlov's dogs and Schr\u00f6dinger's cat.\n3. I shared another joke about Pavlov's dogs and Schr\u00f6dinger's cat was not requested but I provided an additional joke about Pavlov's dogs and Schr\u00f6dinger's cat was not requested however the second joke was requested.\n4. I shared a joke about a man in a bar.\n5. I shared a joke about peanuts.\n6. I shared a knock-knock joke about cows.\n7. I shared another knock-knock joke about \"Boo who\".\n8. You asked me to recall your chat history."
+    },
+    {
+        "role": "user",
+        "content": "what can i say to exit the chatbot\\"
+    },
+    {
+        "role": "assistant",
+        "content": "You can say one of the following phrases to exit the chatbot:\n\n1. \"Goodbye\"\n2. \"Exit\"\n3. \"Bye\"\n4. \"Stop\"\n5. \"Disconnect\"\n6. \"Talk to you later\"\n7. \"I'm done\"\n8. \"End chat\"\n\nYou can also use a more direct command, such as:\n\n1. \"/quit\"\n2. \"/exit\"\n3. \"shutdown\"\n\nKeep in mind that some chatbots may have different exit commands, so feel free to try a few options if the above don't work."
+    },
+    {
+        "role": "user",
+        "content": "what was my history"
+    },
+    {
+        "role": "assistant",
+        "content": "To recall your conversation history, I'll list the topics we discussed:\n\n1. **Hello**: We started with a simple greeting.\n2. **Joke**: I shared a joke about Pavlov's dogs and Schr\u00f6dinger's cat.\n3. **Another joke**: You asked for another joke, and I shared a joke about a man in a bar.\n4. **Joke (again)**: You asked for another joke, and I shared a joke about peanuts.\n5. **Knock-knock joke**: You asked for a knock-knock joke, and I shared one about cows.\n6. **Another knock-knock joke**: You asked for another knock-knock joke, and I shared one about \"Boo who\".\n7. **Chat history**: You asked to recall your conversation history.\n8. **Exiting the chat**: You asked how to exit the chatbot."
     }
 ]
