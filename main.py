@@ -97,6 +97,7 @@ def show_menu():
 
     print("+  Create new chat")
     print("-  Delete chat")
+    print("R  Rename chat")
     print("0  Exit")
 
     print()
@@ -190,6 +191,66 @@ def delete_chat():
                     "\nChat deleted.\n"
                 )
 
+def rename_chat():
+
+    chats = chat_manager.list_chats()
+
+    if not chats:
+
+        print("\nNo chats to rename.\n")
+        return
+
+    print("\nSelect chat to rename:\n")
+
+    for index, chat in enumerate(chats, start=1):
+
+        print(f"{chat}: Press {index}")
+
+    choice = input("\nRename number: ")
+
+    if not choice.isdigit():
+
+        print("\nInvalid selection.\n")
+        return
+
+    index = int(choice) - 1
+
+    if not (0 <= index < len(chats)):
+
+        print("\nInvalid selection.\n")
+        return
+
+    old_title = chats[index]
+
+    print("\nRename Options")
+    print("1. Type your own title")
+    print("2. AI title generation (Coming Soon)\n")
+
+    option = input("> ")
+
+    if option != "1":
+
+        print("\nThat option is not available yet.\n")
+        return
+
+    new_title = input("\nNew chat title: ").strip()
+
+    if new_title == "":
+
+        print("\nTitle cannot be empty.\n")
+        return
+
+    if chat_manager.exists(new_title):
+
+        print("\nA chat with that name already exists.\n")
+        return
+
+    chat_manager.rename_chat(
+        old_title,
+        new_title
+    )
+
+    print("\nChat renamed successfully!\n")
 
 
 while True:
@@ -214,6 +275,10 @@ while True:
     elif choice == "-":
 
         delete_chat()
+
+    elif choice.lower() == "r":
+
+        rename_chat()
 
 
     elif choice.isdigit():

@@ -93,6 +93,14 @@ def delete_chat(title: str):
 
     file = chat_path(title)
 
+    print(f"Trying to delete: {file.resolve()}")
+
     if file.exists():
 
         file.unlink()
+
+        print("Delete successful.")
+
+    else:
+
+        print("File does not exist.")
