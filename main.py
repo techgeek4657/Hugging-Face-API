@@ -7,9 +7,6 @@ chat_manager = ChatManager()
 
 
 def chat_interface(chat_title, chat_data):
-    """
-    Handles the actual AI conversation.
-    """
 
     messages = chat_data["messages"]
 
@@ -23,7 +20,9 @@ def chat_interface(chat_title, chat_data):
 
         prompt = input("You: ")
 
+
         if prompt.lower() == "quit":
+
             chat_manager.save_chat(
                 chat_title,
                 messages
@@ -75,13 +74,8 @@ def show_menu():
 
     if len(chats) == 0:
 
-        print(
-            "No chats found in system history."
-        )
-
-        print(
-            "Press + to make a new chat.\n"
-        )
+        print("No chats found in system history.")
+        print("Press + to make a new chat.\n")
 
     else:
 
@@ -91,7 +85,6 @@ def show_menu():
                 f"{chat}: Press {index}"
             )
 
-
         print()
 
 
@@ -99,43 +92,38 @@ def show_menu():
     print("-  Delete chat")
     print("R  Rename chat")
     print("0  Exit")
-
     print()
+
 
 
 def create_new_chat():
 
-    print(
-        "Type a title for your chat,"
-    )
-
-    print(
-        "or press + for AI title generation."
+    title = input(
+        "Type a title for your chat:\n> "
     )
 
 
-    title = input("> ")
-
-
-    if title == "+":
-
-        title = chat_manager.create_chat()
+    if not title.strip():
 
         print(
-            f"\nCreated temporary chat: {title}"
+            "\nChat creation cancelled.\n"
         )
 
-
-    else:
-
-        chat_manager.create_chat(title)
+        return
 
 
-    chat_data = chat_manager.open_chat(title)
+    chat_manager.create_chat(
+        title.strip()
+    )
+
+
+    chat_data = chat_manager.open_chat(
+        title.strip()
+    )
 
 
     chat_interface(
-        title,
+        title.strip(),
         chat_data
     )
 
@@ -185,72 +173,75 @@ def delete_chat():
 
             if confirm.lower() == "y":
 
-                chat_manager.delete_chat(title)
+                chat_manager.delete_chat(
+                    title
+                )
 
                 print(
                     "\nChat deleted.\n"
                 )
 
+
+
 def rename_chat():
 
     chats = chat_manager.list_chats()
 
+
     if not chats:
 
-        print("\nNo chats to rename.\n")
+        print(
+            "\nNo chats available.\n"
+        )
+
         return
+
 
     print("\nSelect chat to rename:\n")
 
+
     for index, chat in enumerate(chats, start=1):
 
-        print(f"{chat}: Press {index}")
+        print(
+            f"{chat}: Press {index}"
+        )
+
 
     choice = input("\nRename number: ")
 
+
     if not choice.isdigit():
 
-        print("\nInvalid selection.\n")
         return
+
 
     index = int(choice) - 1
 
-    if not (0 <= index < len(chats)):
 
-        print("\nInvalid selection.\n")
+    if index < 0 or index >= len(chats):
+
         return
+
 
     old_title = chats[index]
 
-    print("\nRename Options")
-    print("1. Type your own title")
-    print("2. AI title generation (Coming Soon)\n")
 
-    option = input("> ")
-
-    if option != "1":
-
-        print("\nThat option is not available yet.\n")
-        return
-
-    new_title = input("\nNew chat title: ").strip()
-
-    if new_title == "":
-
-        print("\nTitle cannot be empty.\n")
-        return
-
-    if chat_manager.exists(new_title):
-
-        print("\nA chat with that name already exists.\n")
-        return
-
-    chat_manager.rename_chat(
-        old_title,
-        new_title
+    new_title = input(
+        "\nNew title: "
     )
 
-    print("\nChat renamed successfully!\n")
+
+    if new_title.strip():
+
+        chat_manager.rename_chat(
+            old_title,
+            new_title.strip()
+        )
+
+        print(
+            "\nChat renamed.\n"
+        )
+
 
 
 while True:
@@ -276,6 +267,7 @@ while True:
 
         delete_chat()
 
+
     elif choice.lower() == "r":
 
         rename_chat()
@@ -293,13 +285,14 @@ while True:
 
             title = chats[index]
 
-            chat_data = chat_manager.open_chat(title)
+            chat_data = chat_manager.open_chat(
+                title
+            )
 
             chat_interface(
                 title,
                 chat_data
             )
-
 
         else:
 
