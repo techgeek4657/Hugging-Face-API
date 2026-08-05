@@ -1,6 +1,8 @@
 from groq import Groq
 from config.settings import GROQ_API_KEY
 
+import re
+
 
 class LLMService:
 
@@ -9,7 +11,6 @@ class LLMService:
         self.client = Groq(
             api_key=GROQ_API_KEY
         )
-
 
     def ask(self, messages: list) -> str:
 
@@ -27,44 +28,79 @@ class LLMService:
 
             return response.choices[0].message.content.strip()
 
-
         except Exception as e:
 
             return f"AI Error: {e}"
 
 
-    def generate_title(self, messages: list) -> str:
+    def generate_title(self, messages: list):
 
-        try:
+        for attempt in range(2):
 
-            title_messages = [
-                {
-                    "role": "system",
-                    "content": (
-                        "Create a short title for this conversation. "
-                        "Maximum four words. "
-                        "Return only the title."
-                    )
-                }
-            ]
+            try:
 
-            title_messages.extend(messages)
+                title_messages = [
 
+                    {
+                        "role": "system",
+                        "content":
+                        (
+                            "You are an AI that creates short chat titles.\n\n"
 
-            response = self.client.chat.completions.create(
+                            "Rules:\n"
 
-                model="llama-3.1-8b-instant",
+                            "- The title should naturally describe the conversation.\n"
+                            "- Keep it between 2 and 6 words whenever possible.\n"
+                            "- No quotation marks.\n"
+                            "- No emojis.\n"
+                            "- No punctuation unless absolutely necessary.\n"
+                            "- Do not say 'Title:' or explain anything.\n"
+                            "- Respond ONLY with the title."
+                        )
+                    }
 
-                messages=title_messages,
+                ]
 
-                max_tokens=15
+                title_messages.extend(messages)
 
-            )
+                response = self.client.chat.completions.create(
 
+                    model="llama-3.1-8b-instant",
 
-            return response.choices[0].message.content.strip()
+                    messages=title_messages,
 
+                    max_tokens=30
 
-        except Exception:
+                )
 
-            return "New Chat"
+                title = response.choices[0].message.content.strip()
+
+                # Remove quotes
+                title = title.replace('"', "")
+                title = title.replace("'", "")
+
+                # Remove illegal Windows filename characters
+                title = re.sub(r'[\\/:*?"<>|]', "", title)
+
+                # Collapse multiple spaces
+                title = " ".join(title.split())
+
+                # Reject empty titles
+                if not title:
+
+                    continue
+
+                # If it is still too long, let the AI try again
+                if len(title) > 35:
+
+                    continue
+
+                return title
+
+            except Exception as e:
+
+                print(f"Title generation error: {e}")
+
+                break
+
+        return None
