@@ -1,5 +1,7 @@
 import tkinter as tk
 
+from gui.theme import Theme
+
 
 class Sidebar:
 
@@ -10,7 +12,8 @@ class Sidebar:
         new_chat_callback,
         rename_callback,
         delete_callback,
-        help_callback
+        help_callback,
+        theme_callback
     ):
 
         self.parent = parent
@@ -20,6 +23,9 @@ class Sidebar:
         self.rename_callback = rename_callback
         self.delete_callback = delete_callback
         self.help_callback = help_callback
+        self.theme_callback = theme_callback
+
+        self.dark_mode = False
 
         self.frame = tk.Frame(
             parent,
@@ -29,6 +35,8 @@ class Sidebar:
         self.frame.pack_propagate(False)
 
         self.create_widgets()
+
+        self.apply_theme()
 
 
     def create_widgets(self):
@@ -42,7 +50,18 @@ class Sidebar:
         self.title.pack(
             anchor="w",
             padx=20,
-            pady=(20, 10)
+            pady=(20, 12)
+        )
+
+
+        self.chat_separator = tk.Frame(
+            self.frame,
+            height=1
+        )
+
+        self.chat_separator.pack(
+            fill="x",
+            padx=15
         )
 
 
@@ -53,64 +72,93 @@ class Sidebar:
         self.chat_list.pack(
             fill="both",
             expand=True,
-            padx=10
+            padx=10,
+            pady=10
         )
 
 
-        self.new_button = tk.Button(
+        self.action_separator = tk.Frame(
             self.frame,
-            text="+  New Chat",
-            font=self.fonts["normal"],
-            command=self.new_chat_callback
+            height=1
         )
 
-        self.new_button.pack(
+        self.action_separator.pack(
             fill="x",
             padx=15,
-            pady=5
+            pady=(0, 10)
         )
 
 
-        self.rename_button = tk.Button(
+        self.new_button = self.create_button(
+            "New Chat",
+            self.new_chat_callback
+        )
+
+
+        self.rename_button = self.create_button(
+            "Rename",
+            self.rename_callback
+        )
+
+
+        self.delete_button = self.create_button(
+            "Delete",
+            self.delete_callback
+        )
+
+
+        self.settings_separator = tk.Frame(
             self.frame,
-            text="R  Rename",
-            font=self.fonts["normal"],
-            command=self.rename_callback
+            height=1
         )
 
-        self.rename_button.pack(
+        self.settings_separator.pack(
             fill="x",
             padx=15,
-            pady=5
+            pady=10
         )
 
 
-        self.delete_button = tk.Button(
+        self.theme_button = self.create_button(
+            "Dark Mode",
+            self.theme_callback
+        )
+
+
+        self.help_button = self.create_button(
+            "Help",
+            self.help_callback
+        )
+
+
+        self.create_button(
+            "Quit",
+            self.parent.winfo_toplevel().destroy
+        )
+
+
+    def create_button(self, text, command):
+
+        button = tk.Button(
             self.frame,
-            text="−  Delete",
+            text=text,
             font=self.fonts["normal"],
-            command=self.delete_callback
+            relief="flat",
+            bd=0,
+            anchor="w",
+            padx=15,
+            pady=9,
+            cursor="hand2",
+            command=command
         )
 
-        self.delete_button.pack(
+        button.pack(
             fill="x",
             padx=15,
-            pady=5
+            pady=2
         )
 
-
-        self.help_button = tk.Button(
-            self.frame,
-            text="?  Help",
-            font=self.fonts["normal"],
-            command=self.help_callback
-        )
-
-        self.help_button.pack(
-            fill="x",
-            padx=15,
-            pady=(5, 15)
-        )
+        return button
 
 
     def set_chats(self, chats, open_callback):
@@ -126,11 +174,88 @@ class Sidebar:
                 self.chat_list,
                 text=title,
                 font=self.fonts["normal"],
+                relief="flat",
+                bd=0,
                 anchor="w",
+                padx=10,
+                pady=8,
+                cursor="hand2",
                 command=lambda t=title: open_callback(t)
             )
 
             button.pack(
                 fill="x",
                 pady=2
+            )
+
+            colors = Theme.get(
+                self.dark_mode
+            )
+
+            button.configure(
+                bg=colors["sidebar"],
+                fg=colors["text"],
+                activebackground=colors["button_hover"],
+                activeforeground=colors["text"]
+            )
+
+
+    def set_dark_mode(self, dark_mode):
+
+        self.dark_mode = dark_mode
+
+        self.apply_theme()
+
+
+    def apply_theme(self):
+
+        colors = Theme.get(
+            self.dark_mode
+        )
+
+
+        self.frame.configure(
+            bg=colors["sidebar"]
+        )
+
+        self.title.configure(
+            bg=colors["sidebar"],
+            fg=colors["text"]
+        )
+
+
+        for separator in (
+            self.chat_separator,
+            self.action_separator,
+            self.settings_separator
+        ):
+
+            separator.configure(
+                bg=colors["border"]
+            )
+
+
+        for button in (
+            self.new_button,
+            self.rename_button,
+            self.delete_button,
+            self.theme_button,
+            self.help_button
+        ):
+
+            button.configure(
+                bg=colors["sidebar"],
+                fg=colors["text"],
+                activebackground=colors["button_hover"],
+                activeforeground=colors["text"]
+            )
+
+
+        for widget in self.chat_list.winfo_children():
+
+            widget.configure(
+                bg=colors["sidebar"],
+                fg=colors["text"],
+                activebackground=colors["button_hover"],
+                activeforeground=colors["text"]
             )

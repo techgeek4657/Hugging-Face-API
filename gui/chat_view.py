@@ -1,5 +1,7 @@
 import tkinter as tk
 
+from gui.theme import Theme
+
 
 class ChatView:
 
@@ -8,6 +10,8 @@ class ChatView:
         self.parent = parent
         self.fonts = fonts
         self.send_callback = send_callback
+
+        self.dark_mode = False
 
         self.frame = tk.Frame(parent)
 
@@ -24,23 +28,91 @@ class ChatView:
 
         self.chat_title.pack(
             anchor="w",
-            padx=20,
-            pady=20
+            padx=24,
+            pady=(20, 14)
         )
 
 
-        self.messages_box = tk.Text(
+        self.title_separator = tk.Frame(
             self.frame,
-            state="disabled",
-            wrap="word",
-            font=self.fonts["normal"]
+            height=1
         )
 
-        self.messages_box.pack(
+        self.title_separator.pack(
+            fill="x",
+            padx=20
+        )
+
+
+        self.messages_container = tk.Frame(
+            self.frame
+        )
+
+        self.messages_container.pack(
             fill="both",
-            expand=True,
-            padx=20,
-            pady=(0, 10)
+            expand=True
+        )
+
+
+        self.messages_canvas = tk.Canvas(
+            self.messages_container,
+            highlightthickness=0
+        )
+
+        self.scrollbar = tk.Scrollbar(
+            self.messages_container,
+            orient="vertical",
+            command=self.messages_canvas.yview
+        )
+
+        self.messages_canvas.configure(
+            yscrollcommand=self.scrollbar.set
+        )
+
+
+        self.scrollbar.pack(
+            side="right",
+            fill="y"
+        )
+
+        self.messages_canvas.pack(
+            side="left",
+            fill="both",
+            expand=True
+        )
+
+
+        self.messages_frame = tk.Frame(
+            self.messages_canvas
+        )
+
+
+        self.canvas_window = self.messages_canvas.create_window(
+            (0, 0),
+            window=self.messages_frame,
+            anchor="nw"
+        )
+
+
+        self.messages_frame.bind(
+            "<Configure>",
+            self.update_scroll_region
+        )
+
+        self.messages_canvas.bind(
+            "<Configure>",
+            self.resize_message_frame
+        )
+
+
+        self.input_separator = tk.Frame(
+            self.frame,
+            height=1
+        )
+
+        self.input_separator.pack(
+            fill="x",
+            padx=20
         )
 
 
@@ -51,19 +123,23 @@ class ChatView:
         self.input_frame.pack(
             fill="x",
             padx=20,
-            pady=(0, 20)
+            pady=16
         )
 
 
         self.input_box = tk.Entry(
             self.input_frame,
-            font=self.fonts["normal"]
+            font=self.fonts["normal"],
+            relief="flat",
+            bd=0
         )
 
         self.input_box.pack(
             side="left",
             fill="x",
-            expand=True
+            expand=True,
+            ipady=8,
+            padx=(0, 10)
         )
 
         self.input_box.bind(
@@ -76,13 +152,54 @@ class ChatView:
             self.input_frame,
             text="Send",
             font=self.fonts["normal"],
+            relief="flat",
+            bd=0,
+            padx=18,
+            pady=8,
+            cursor="hand2",
             command=self.send_message
         )
 
         self.send_button.pack(
-            side="right",
-            padx=(10, 0)
+            side="right"
         )
+
+
+    def update_scroll_region(self, event=None):
+
+        self.messages_canvas.configure(
+            scrollregion=self.messages_canvas.bbox("all")
+        )
+
+
+    def resize_message_frame(self, event):
+
+        self.messages_canvas.itemconfig(
+            self.canvas_window,
+            width=event.width
+        )
+
+
+        self.update_message_wraps(
+            event.width
+        )
+
+
+    def update_message_wraps(self, width):
+
+        wrap_width = max(
+            250,
+            int(width * 0.72)
+        )
+
+
+        for widget in self.messages_frame.winfo_children():
+
+            if hasattr(widget, "message_label"):
+
+                widget.message_label.configure(
+                    wraplength=wrap_width
+                )
 
 
     def send_message(self, event=None):
@@ -109,41 +226,200 @@ class ChatView:
 
     def display_messages(self, messages):
 
-        self.messages_box.config(
-            state="normal"
-        )
+        for widget in self.messages_frame.winfo_children():
 
-        self.messages_box.delete(
-            "1.0",
-            tk.END
-        )
+            widget.destroy()
 
 
         for message in messages:
 
-            role = message["role"]
-            content = message["content"]
+            self.add_message(
+                message["role"],
+                message["content"]
+            )
 
 
-            if role == "user":
+        self.messages_frame.update_idletasks()
 
-                self.messages_box.insert(
-                    tk.END,
-                    f"You:\n{content}\n\n"
-                )
-
-            elif role == "assistant":
-
-                self.messages_box.insert(
-                    tk.END,
-                    f"AI:\n{content}\n\n"
-                )
-
-
-        self.messages_box.config(
-            state="disabled"
+        self.messages_canvas.yview_moveto(
+            1
         )
 
-        self.messages_box.see(
-            tk.END
+
+    def add_message(self, role, content):
+
+        outer_frame = tk.Frame(
+            self.messages_frame
         )
+
+        outer_frame.pack(
+            fill="x",
+            padx=24,
+            pady=7
+        )
+
+
+        wrap_width = max(
+            250,
+            int(
+                self.messages_canvas.winfo_width() * 0.72
+            )
+        )
+
+
+        if role == "user":
+
+            bubble = tk.Label(
+                outer_frame,
+                text=content,
+                font=self.fonts["normal"],
+                justify="left",
+                anchor="w",
+                wraplength=wrap_width,
+                padx=14,
+                pady=9,
+                relief="flat",
+                bd=0
+            )
+
+            bubble.pack(
+                side="right",
+                anchor="e"
+            )
+
+
+            outer_frame.message_label = bubble
+
+
+        else:
+
+            message = tk.Label(
+                outer_frame,
+                text=content,
+                font=self.fonts["normal"],
+                justify="left",
+                anchor="w",
+                wraplength=wrap_width,
+                padx=2,
+                pady=5
+            )
+
+            message.pack(
+                side="left",
+                anchor="w"
+            )
+
+
+            outer_frame.message_label = message
+
+
+        self.apply_message_theme(
+            outer_frame,
+            role
+        )
+
+
+    def apply_message_theme(self, outer_frame, role):
+
+        colors = Theme.get(
+            self.dark_mode
+        )
+
+
+        outer_frame.configure(
+            bg=colors["background"]
+        )
+
+
+        bubble = outer_frame.message_label
+
+
+        if role == "user":
+
+            bubble.configure(
+                bg=colors["user_bubble"],
+                fg=colors["user_text"]
+            )
+
+        else:
+
+            bubble.configure(
+                bg=colors["background"],
+                fg=colors["text"]
+            )
+
+
+    def set_dark_mode(self, dark_mode):
+
+        self.dark_mode = dark_mode
+
+        colors = Theme.get(
+            dark_mode
+        )
+
+
+        self.frame.configure(
+            bg=colors["background"]
+        )
+
+        self.chat_title.configure(
+            bg=colors["background"],
+            fg=colors["text"]
+        )
+
+        self.title_separator.configure(
+            bg=colors["border"]
+        )
+
+        self.messages_container.configure(
+            bg=colors["background"]
+        )
+
+        self.messages_canvas.configure(
+            bg=colors["background"]
+        )
+
+        self.messages_frame.configure(
+            bg=colors["background"]
+        )
+
+        self.input_separator.configure(
+            bg=colors["border"]
+        )
+
+        self.input_frame.configure(
+            bg=colors["background"]
+        )
+
+        self.input_box.configure(
+            bg=colors["input"],
+            fg=colors["text"],
+            insertbackground=colors["text"]
+        )
+
+        self.send_button.configure(
+            bg=colors["button"],
+            fg=colors["text"],
+            activebackground=colors["button_hover"],
+            activeforeground=colors["text"]
+        )
+
+
+        for widget in self.messages_frame.winfo_children():
+
+            if hasattr(widget, "message_label"):
+
+                role = (
+                    "user"
+                    if widget.message_label.cget("bg")
+                    in (
+                        Theme.LIGHT["user_bubble"],
+                        Theme.DARK["user_bubble"]
+                    )
+                    else "assistant"
+                )
+
+                self.apply_message_theme(
+                    widget,
+                    role
+                )
