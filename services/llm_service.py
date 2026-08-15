@@ -21,7 +21,7 @@ class LLMService:
 
                 messages=messages,
 
-                max_tokens=800
+                max_completion_tokens=2048
 
             )
 
@@ -31,3 +31,27 @@ class LLMService:
         except Exception as e:
 
             return f"AI Error: {e}"
+
+
+    def stream(self, messages: list):
+
+        response = self.client.chat.completions.create(
+
+            model="llama-3.1-8b-instant",
+
+            messages=messages,
+
+            max_completion_tokens=2048,
+
+            stream=True
+
+        )
+
+
+        for chunk in response:
+
+            content = chunk.choices[0].delta.content
+
+            if content:
+
+                yield content

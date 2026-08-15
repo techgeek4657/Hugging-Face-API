@@ -4,7 +4,7 @@ from gui.fonts import create_fonts
 from gui.sidebar import Sidebar
 from gui.chat_view import ChatView
 from gui.dialogs import Dialogs
-
+from gui.streaming_output import StreamingOutput
 from utils.chat_manager import ChatManager
 
 
@@ -23,7 +23,10 @@ class ChatApp:
         self.chat_manager = ChatManager()
 
         self.llm = LLMService()
-
+        self.streaming = StreamingOutput(
+            self.root,
+            self.llm
+        )
         self.dialogs = Dialogs(
             root,
             self.fonts
@@ -293,30 +296,28 @@ class ChatApp:
         )
 
 
-        self.root.update()
-
-
-        answer = self.llm.ask(
-            self.messages
+        self.chat_view.input_box.config(
+            state="disabled"
         )
 
 
-        self.messages.append(
-            {
-                "role": "assistant",
-                "content": answer
-            }
+        self.chat_view.send_button.config(
+            state="disabled"
         )
 
 
-        self.chat_view.display_messages(
-            self.messages
-        )
+        self.streaming.start(
 
+            self.messages,
 
-        self.chat_manager.save_chat(
-            self.current_chat,
-            self.messages
+            self.streaming_started,
+
+            self.streaming_chunk,
+
+            self.streaming_finished,
+
+            self.streaming_error
+
         )
     def show_help(self):
 
@@ -327,3 +328,84 @@ class ChatApp:
             "Delete: Delete the selected chat\n"
             "Help: Show this message"
         )
+
+    def streaming_started(self):
+
+        self.chat_view.start_streaming_message()
+
+    
+
+
+    def streaming_chunk(self, chunk):
+
+            self.chat_view.append_streaming_text(
+                chunk
+            )
+
+
+    def streaming_finished(self, answer):
+
+            self.chat_view.finish_streaming_message()
+
+
+            self.messages.append(
+                {
+                    "role": "assistant",
+                    "content": answer
+                }
+            )
+
+
+            self.chat_view.display_messages(
+                self.messages
+            )
+
+
+            self.chat_manager.save_chat(
+                self.current_chat,
+                self.messages
+            )
+
+
+            self.chat_view.input_box.config(
+                state="normal"
+            )
+
+
+            self.chat_view.send_button.config(
+                state="normal"
+            )
+
+
+            self.chat_view.input_box.focus()
+
+
+    def streaming_error(self, error):
+
+            self.chat_view.finish_streaming_message()
+
+
+            self.messages.append(
+                {
+                    "role": "assistant",
+                    "content": f"AI Error: {error}"
+                }
+            )
+
+
+            self.chat_view.display_messages(
+                self.messages
+            )
+
+
+            self.chat_view.input_box.config(
+                state="normal"
+            )
+
+
+            self.chat_view.send_button.config(
+                state="normal"
+            )
+
+
+            self.chat_view.input_box.focus()

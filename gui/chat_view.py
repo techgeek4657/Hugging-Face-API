@@ -423,3 +423,107 @@ class ChatView:
                     widget,
                     role
                 )
+    def start_streaming_message(self):
+
+        self.streaming_frame = tk.Frame(
+            self.messages_frame
+        )
+
+        self.streaming_frame.pack(
+            fill="x",
+            padx=24,
+            pady=7
+        )
+
+
+        wrap_width = max(
+            250,
+            int(
+                self.messages_canvas.winfo_width() * 0.72
+            )
+        )
+
+
+        self.streaming_label = tk.Label(
+            self.streaming_frame,
+            text="",
+            font=self.fonts["normal"],
+            justify="left",
+            anchor="w",
+            wraplength=wrap_width,
+            padx=2,
+            pady=5
+        )
+
+
+        self.streaming_label.pack(
+            side="left",
+            anchor="w"
+        )
+
+
+        self.streaming_frame.message_label = (
+            self.streaming_label
+        )
+
+
+        self.apply_message_theme(
+            self.streaming_frame,
+            "assistant"
+        )
+
+
+        self.messages_frame.update_idletasks()
+
+        self.messages_canvas.yview_moveto(
+            1
+        )
+
+
+    def append_streaming_text(self, text):
+
+        if not hasattr(
+            self,
+            "streaming_label"
+        ):
+
+            return
+
+
+        current = self.streaming_label.cget(
+            "text"
+        )
+
+
+        self.streaming_label.config(
+            text=current + text
+        )
+
+
+        self.messages_frame.update_idletasks()
+
+        self.messages_canvas.configure(
+            scrollregion=self.messages_canvas.bbox("all")
+        )
+
+        self.messages_canvas.yview_moveto(
+            1
+        )
+
+
+    def finish_streaming_message(self):
+
+        if hasattr(
+            self,
+            "streaming_label"
+        ):
+
+            del self.streaming_label
+
+
+        if hasattr(
+            self,
+            "streaming_frame"
+        ):
+
+            del self.streaming_frame
